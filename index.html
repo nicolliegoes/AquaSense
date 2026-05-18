@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>EspPiscina</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -12,7 +12,7 @@
     --btn-blue: #3bbfdb; --btn-hover: #29a8c4;
     --text-dark: #1a3a4a; --text-mid: #2d6070;
   }
-  body { font-family: 'Nunito', sans-serif; background: #f4f8fb; min-height: 100vh; display: flex; justify-content: center; }
+  body { font-family: 'Inter', sans-serif; background: #f4f8fb; min-height: 100vh; display: flex; justify-content: center; }
   .phone-wrap { width: 100%; max-width: 420px; min-height: 100vh; background: #f4f8fb; display: flex; flex-direction: column; }
 
   /* BLUE HEADER ONLY */
@@ -20,8 +20,8 @@
     background: linear-gradient(135deg, #5de0f5 0%, #29c4de 55%, #17a8c0 100%);
     padding: 44px 22px 52px;
   }
-  .header-bg h1 { color: #fff; font-size: 1.55rem; font-weight: 900; }
-  .header-bg p  { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 600; margin-top: 3px; }
+  .header-bg h1 { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header-bg p  { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 500; margin-top: 4px; letter-spacing: 0.1px; }
 
   /* WHITE CONTENT */
   .content { flex: 1; padding: 0 14px 30px; display: flex; flex-direction: column; gap: 14px; margin-top: -30px; }
@@ -32,18 +32,21 @@
   .conditions-wrap { position: relative; }
 
   .refresh-btn {
-    position: absolute; top: -6px; right: 0; z-index: 10;
-    background: #fff; border: 1.5px solid #d0eef5; border-radius: 99px;
-    padding: 5px 13px; font-family: 'Nunito', sans-serif;
-    font-size: 0.74rem; font-weight: 700; color: var(--cyan-dark);
-    cursor: pointer; display: flex; align-items: center; gap: 5px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: background 0.15s, transform 0.15s;
+    position: absolute; top: -18px; right: 4px; z-index: 10;
+    background: none; border: none;
+    width: 34px; height: 34px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    padding: 0; transition: transform 0.2s, opacity 0.2s;
+    opacity: 0.75;
   }
-  .refresh-btn:hover  { background: #eaf9fd; transform: scale(1.04); }
-  .refresh-btn:active { transform: scale(0.97); }
-  .r-spin { display: none; width: 13px; height: 13px; border: 2px solid #c0e8f0; border-top-color: var(--cyan-dark); border-radius: 50%; animation: spin 0.7s linear infinite; }
-  .refresh-btn.loading .r-spin { display: inline-block; }
-  .refresh-btn.loading .r-icon { display: none; }
+  .refresh-btn:hover  { opacity: 1; transform: scale(1.12); }
+  .refresh-btn:active { transform: scale(0.92); }
+  .refresh-btn svg { width: 22px; height: 22px; }
+  .r-spin-wrap { display: none; }
+  .r-icon-wrap { display: flex; }
+  .refresh-btn.loading .r-spin-wrap { display: flex; }
+  .refresh-btn.loading .r-icon-wrap { display: none; }
+  .r-spin-svg { animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .conditions-card { text-align: center; }
@@ -58,16 +61,17 @@
   .gauge-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: #bbb; margin: 6px 4px 0; }
   .last-reading { font-size: 0.76rem; color: #aaa; margin-top: 10px; }
 
-  .section-label { font-size: 0.92rem; font-weight: 800; color: var(--text-dark); padding-left: 2px; margin-bottom: -4px; }
+  .section-label { font-size: 0.92rem; font-weight: 700; color: var(--text-dark); padding-left: 2px; margin-bottom: -4px; letter-spacing: -0.1px; }
 
   /* METRICS */
   .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .metric-card { background: var(--btn-blue); border-radius: 16px; padding: 14px 13px; color: #fff; position: relative; box-shadow: 0 3px 10px rgba(41,196,222,0.25); transition: transform 0.15s; }
   .metric-card:active { transform: scale(0.97); }
-  .mc-icon  { font-size: 1.1rem; margin-bottom: 4px; }
-  .mc-label { font-size: 0.72rem; font-weight: 700; opacity: 0.85; }
-  .mc-value { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; }
-  .mc-ideal { font-size: 0.7rem; opacity: 0.8; font-weight: 600; margin-top: 2px; }
+  .mc-icon  { margin-bottom: 6px; display: flex; align-items: center; }
+  .mc-icon svg { width: 20px; height: 20px; }
+  .mc-label { font-size: 0.72rem; font-weight: 600; opacity: 0.85; }
+  .mc-value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; }
+  .mc-ideal { font-size: 0.7rem; opacity: 0.8; font-weight: 500; margin-top: 2px; }
   .mc-trend { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: rgba(255,255,255,0.22); }
   .trend-up     { background: rgba(255,80,80,0.32)  !important; }
   .trend-down   { background: rgba(80,200,120,0.32) !important; }
@@ -81,9 +85,9 @@
 
   /* SCHEDULING */
   .date-input-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
-  .date-input-row input { flex: 1; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 600; background: #f4fafc; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
+  .date-input-row input { flex: 1; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; background: #f4fafc; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
   .date-input-row input:focus { border-color: var(--cyan-mid); }
-  .btn-add { background: var(--btn-blue); color: #fff; border: none; border-radius: 10px; padding: 9px 13px; font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.18s; }
+  .btn-add { background: var(--btn-blue); color: #fff; border: none; border-radius: 10px; padding: 9px 13px; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.18s; }
   .btn-add:hover { background: var(--btn-hover); }
   .sched-list { display: flex; flex-direction: column; gap: 7px; }
   .sched-item { display: flex; justify-content: space-between; align-items: center; background: #f4fafc; border-radius: 10px; padding: 8px 11px; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); }
@@ -94,7 +98,7 @@
 
   /* CONFIG */
   .config-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn-config { flex: 1; min-width: 120px; background: var(--btn-blue); color: #fff; border: none; border-radius: 12px; padding: 11px 8px; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.18s; }
+  .btn-config { flex: 1; min-width: 120px; background: var(--btn-blue); color: #fff; border: none; border-radius: 12px; padding: 11px 8px; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.18s; }
   .btn-config:hover { background: var(--btn-hover); }
   .reset-row { margin-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #bbb; font-weight: 600; cursor: pointer; transition: color 0.15s; }
   .reset-row:hover { color: #e74c3c; }
@@ -116,10 +120,10 @@
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal h3 { font-size: 1rem; font-weight: 800; color: var(--text-dark); margin-bottom: 14px; }
   .modal label { font-size: 0.78rem; font-weight: 700; color: var(--text-mid); display: block; margin: 10px 0 4px; }
-  .modal input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
+  .modal input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
   .modal input:focus { border-color: var(--cyan-mid); }
   .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
-  .modal-btns button { flex: 1; padding: 11px; border: none; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+  .modal-btns button { flex: 1; padding: 11px; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
   .btn-cancel { background: #f0f4f5; color: #999; } .btn-confirm { background: var(--btn-blue); color: #fff; }
 
   /* TOAST */
@@ -139,10 +143,21 @@
 
     <!-- CONDITIONS + REFRESH -->
     <div class="conditions-wrap">
-      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
-        <span class="r-icon">🔄</span>
-        <span class="r-spin"></span>
-        Atualizar
+      <!-- Ícone de refresh enviado pelo usuário — só a setinha, sem texto -->
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Atualizar">
+        <span class="r-icon-wrap">
+          <!-- Ícone enviado pelo usuário: arco circular com seta apontando para baixo-direita -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12A9 9 0 1 1 12 3"/>
+            <polyline points="16 3 21 3 21 8"/>
+          </svg>
+        </span>
+        <span class="r-spin-wrap">
+          <svg class="r-spin-svg" viewBox="0 0 24 24" fill="none" stroke="#17a8c0" stroke-width="2.3" stroke-linecap="round">
+            <path d="M21 12A9 9 0 1 1 12 3"/>
+            <polyline points="16 3 21 3 21 8"/>
+          </svg>
+        </span>
       </button>
       <div class="card conditions-card">
         <div id="statusBadge" class="status-badge status-normal">Condições perfeitas</div>
@@ -158,14 +173,29 @@
     <p class="section-label">Medições</p>
     <div class="metrics-grid">
       <div class="metric-card">
-        <div class="mc-icon">💧</div>
+        <!-- Gota minimalista branca -->
+        <div class="mc-icon">
+          <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z"/>
+          </svg>
+        </div>
         <div class="mc-label">Cloro (Chlorine)</div>
         <div class="mc-value" id="cloroVal">--</div>
         <div class="mc-ideal">Ideal: 2.5 ppm</div>
         <span class="mc-trend" id="cloroTrend">--</span>
       </div>
       <div class="metric-card">
-        <div class="mc-icon">🔬</div>
+        <!-- Telescópio minimalista branco -->
+        <div class="mc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <line x1="2" y1="6" x2="14" y2="3"/>
+            <line x1="2" y1="10" x2="14" y2="7"/>
+            <line x1="2" y1="6" x2="2" y2="10"/>
+            <line x1="14" y1="3" x2="14" y2="7"/>
+            <line x1="8" y1="6.5" x2="12" y2="20"/>
+            <line x1="10" y1="6.2" x2="14" y2="20"/>
+          </svg>
+        </div>
         <div class="mc-label">pH</div>
         <div class="mc-value" id="phVal">--</div>
         <div class="mc-ideal">Ideal: 7.2</div>
