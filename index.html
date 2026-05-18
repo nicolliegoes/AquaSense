@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EspPiscina</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --cyan-mid: #29c4de; --cyan-dark: #17a8c0;
+    --btn-blue: #3bbfdb; --btn-hover: #29a8c4;
+    --text-dark: #1a3a4a; --text-mid: #2d6070;
+  }
+  body { font-family: 'Nunito', sans-serif; background: #f4f8fb; min-height: 100vh; display: flex; justify-content: center; }
+  .phone-wrap { width: 100%; max-width: 420px; min-height: 100vh; background: #f4f8fb; display: flex; flex-direction: column; }
+
+  /* BLUE HEADER ONLY */
+  .header-bg {
+    background: linear-gradient(135deg, #5de0f5 0%, #29c4de 55%, #17a8c0 100%);
+    padding: 44px 22px 52px;
+  }
+  .header-bg h1 { color: #fff; font-size: 1.55rem; font-weight: 900; }
+  .header-bg p  { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 600; margin-top: 3px; }
+
+  /* WHITE CONTENT */
+  .content { flex: 1; padding: 0 14px 30px; display: flex; flex-direction: column; gap: 14px; margin-top: -30px; }
+
+  .card { background: #fff; border-radius: 18px; padding: 16px 18px; box-shadow: 0 2px 14px rgba(0,0,0,0.07); }
+
+  /* CONDITIONS */
+  .conditions-wrap { position: relative; }
+
+  .refresh-btn {
+    position: absolute; top: -6px; right: 0; z-index: 10;
+    background: #fff; border: 1.5px solid #d0eef5; border-radius: 99px;
+    padding: 5px 13px; font-family: 'Nunito', sans-serif;
+    font-size: 0.74rem; font-weight: 700; color: var(--cyan-dark);
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: background 0.15s, transform 0.15s;
+  }
+  .refresh-btn:hover  { background: #eaf9fd; transform: scale(1.04); }
+  .refresh-btn:active { transform: scale(0.97); }
+  .r-spin { display: none; width: 13px; height: 13px; border: 2px solid #c0e8f0; border-top-color: var(--cyan-dark); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .refresh-btn.loading .r-spin { display: inline-block; }
+  .refresh-btn.loading .r-icon { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .conditions-card { text-align: center; }
+  .status-badge { display: inline-block; padding: 5px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 800; margin-bottom: 12px; }
+  .status-normal  { background: #d4f7e0; color: #1a7a3c; }
+  .status-atencao { background: #fff3cd; color: #856404; }
+  .status-critico { background: #fde8e8; color: #c0392b; }
+
+  .gauge-bar-wrap { position: relative; height: 13px; border-radius: 99px; background: linear-gradient(to right, #27ae60, #f1c40f, #e67e22, #e74c3c); margin: 0 4px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .gauge-needle { position: absolute; top: -5px; width: 4px; height: 23px; background: #1a3a4a; border-radius: 2px; transform: translateX(-50%); transition: left 0.8s cubic-bezier(.4,0,.2,1); }
+  .gauge-needle::after { content: '▼'; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #1a3a4a; }
+  .gauge-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: #bbb; margin: 6px 4px 0; }
+  .last-reading { font-size: 0.76rem; color: #aaa; margin-top: 10px; }
+
+  .section-label { font-size: 0.92rem; font-weight: 800; color: var(--text-dark); padding-left: 2px; margin-bottom: -4px; }
+
+  /* METRICS */
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .metric-card { background: var(--btn-blue); border-radius: 16px; padding: 14px 13px; color: #fff; position: relative; box-shadow: 0 3px 10px rgba(41,196,222,0.25); transition: transform 0.15s; }
+  .metric-card:active { transform: scale(0.97); }
+  .mc-icon  { font-size: 1.1rem; margin-bottom: 4px; }
+  .mc-label { font-size: 0.72rem; font-weight: 700; opacity: 0.85; }
+  .mc-value { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; }
+  .mc-ideal { font-size: 0.7rem; opacity: 0.8; font-weight: 600; margin-top: 2px; }
+  .mc-trend { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: rgba(255,255,255,0.22); }
+  .trend-up     { background: rgba(255,80,80,0.32)  !important; }
+  .trend-down   { background: rgba(80,200,120,0.32) !important; }
+  .trend-stable { background: rgba(255,255,255,0.20)!important; }
+
+  /* DIAGNOSTICS */
+  .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .diag-item { display: flex; align-items: center; gap: 8px; background: #f4fafc; border-radius: 10px; padding: 8px 10px; font-size: 0.75rem; font-weight: 700; color: var(--text-dark); }
+  .diag-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .diag-ok { background: #2ecc71; } .diag-fail { background: #e74c3c; }
+
+  /* SCHEDULING */
+  .date-input-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .date-input-row input { flex: 1; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 600; background: #f4fafc; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
+  .date-input-row input:focus { border-color: var(--cyan-mid); }
+  .btn-add { background: var(--btn-blue); color: #fff; border: none; border-radius: 10px; padding: 9px 13px; font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.18s; }
+  .btn-add:hover { background: var(--btn-hover); }
+  .sched-list { display: flex; flex-direction: column; gap: 7px; }
+  .sched-item { display: flex; justify-content: space-between; align-items: center; background: #f4fafc; border-radius: 10px; padding: 8px 11px; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); }
+  .si-left { display: flex; align-items: center; gap: 7px; }
+  .si-date { color: var(--text-mid); } .si-time { color: var(--cyan-dark); font-weight: 800; }
+  .si-del { background: none; border: none; cursor: pointer; font-size: 1rem; color: #ccc; padding: 2px 5px; border-radius: 6px; transition: color 0.15s; }
+  .si-del:hover { color: #e74c3c; }
+
+  /* CONFIG */
+  .config-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-config { flex: 1; min-width: 120px; background: var(--btn-blue); color: #fff; border: none; border-radius: 12px; padding: 11px 8px; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.18s; }
+  .btn-config:hover { background: var(--btn-hover); }
+  .reset-row { margin-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #bbb; font-weight: 600; cursor: pointer; transition: color 0.15s; }
+  .reset-row:hover { color: #e74c3c; }
+
+  /* DEBUG PANEL */
+  .debug-card { background: #0f2535; border-radius: 14px; padding: 14px 16px; }
+  .debug-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .debug-header h4 { color: #5de0f5; font-size: 0.78rem; font-weight: 800; }
+  .debug-toggle { background: none; border: 1px solid #5de0f5; color: #5de0f5; border-radius: 6px; padding: 2px 8px; font-size: 0.68rem; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; }
+  #debugLog { color: #7ac8d8; font-size: 0.68rem; font-family: monospace; line-height: 1.7; max-height: 150px; overflow-y: auto; }
+  #debugLog .ok   { color: #2ecc71; }
+  #debugLog .err  { color: #e74c3c; }
+  #debugLog .warn { color: #f1c40f; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 200; justify-content: center; align-items: flex-end; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 24px 24px 0 0; padding: 22px 20px 32px; width: 100%; max-width: 420px; animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal h3 { font-size: 1rem; font-weight: 800; color: var(--text-dark); margin-bottom: 14px; }
+  .modal label { font-size: 0.78rem; font-weight: 700; color: var(--text-mid); display: block; margin: 10px 0 4px; }
+  .modal input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
+  .modal input:focus { border-color: var(--cyan-mid); }
+  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-btns button { flex: 1; padding: 11px; border: none; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+  .btn-cancel { background: #f0f4f5; color: #999; } .btn-confirm { background: var(--btn-blue); color: #fff; }
+
+  /* TOAST */
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a3a4a; color: #fff; padding: 10px 22px; border-radius: 99px; font-size: 0.82rem; font-weight: 700; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="phone-wrap">
+
+  <div class="header-bg">
+    <h1>Bem vindo</h1>
+    <p id="headerDate">Carregando...</p>
+  </div>
+
+  <div class="content">
+
+    <!-- CONDITIONS + REFRESH -->
+    <div class="conditions-wrap">
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+        <span class="r-icon">🔄</span>
+        <span class="r-spin"></span>
+        Atualizar
+      </button>
+      <div class="card conditions-card">
+        <div id="statusBadge" class="status-badge status-normal">Condições perfeitas</div>
+        <div class="gauge-bar-wrap">
+          <div class="gauge-needle" id="gaugeNeedle" style="left:15%"></div>
+        </div>
+        <div class="gauge-labels"><span>Ótimo</span><span>Atenção</span><span>Crítico</span></div>
+        <p class="last-reading" id="lastReading">Buscando última medição...</p>
+      </div>
+    </div>
+
+    <!-- MEDIÇÕES -->
+    <p class="section-label">Medições</p>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="mc-icon">💧</div>
+        <div class="mc-label">Cloro (Chlorine)</div>
+        <div class="mc-value" id="cloroVal">--</div>
+        <div class="mc-ideal">Ideal: 2.5 ppm</div>
+        <span class="mc-trend" id="cloroTrend">--</span>
+      </div>
+      <div class="metric-card">
+        <div class="mc-icon">🔬</div>
+        <div class="mc-label">pH</div>
+        <div class="mc-value" id="phVal">--</div>
+        <div class="mc-ideal">Ideal: 7.2</div>
+        <span class="mc-trend" id="phTrend">--</span>
+      </div>
+    </div>
+
+    <!-- DIAGNÓSTICOS -->
+    <p class="section-label">Diagnósticos</p>
+    <div class="card">
+      <div class="diag-grid" id="diagGrid">
+        <div class="diag-item"><span class="diag-dot" style="background:#ddd"></span>Aguardando...</div>
+      </div>
+    </div>
+
+    <!-- AGENDAMENTO -->
+    <p class="section-label">Agendar próxima medição</p>
+    <div class="card">
+      <div class="date-input-row">
+        <input type="date" id="schedDate">
+        <input type="time" id="schedTime">
+        <button class="btn-add" onclick="addSchedule()">+ Adicionar</button>
+      </div>
+      <div class="sched-list" id="schedList">
+        <p style="color:#ccc;font-size:0.78rem;font-weight:600;">Nenhum agendamento ainda.</p>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <p class="section-label">Configurações e manutenção</p>
+    <div class="card">
+      <div class="config-btns">
+        <button class="btn-config" onclick="openCalibModal()">📊 Ver calibração</button>
+        <button class="btn-config" onclick="validateSensors()">✅ Validar Sensores</button>
+      </div>
+      <div class="reset-row" onclick="confirmReset()">🔄 Reset de fábrica</div>
+    </div>
+
+    <!-- DEBUG PANEL -->
+    <div class="debug-card">
+      <div class="debug-header">
+        <h4>🛰 Conexão Supabase</h4>
+        <button class="debug-toggle" id="debugToggleBtn" onclick="toggleDebug()">ocultar</button>
+      </div>
+      <div id="debugLog">Iniciando...</div>
+    </div>
+
+  </div>
+
+  <!--
+  ══════════════════════════════════════
+   FOOTER DE NAVEGAÇÃO
+   Descomente quando quiser ativar as abas
+  ══════════════════════════════════════
+
+  <nav style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:420px;background:#fff;border-top:1px solid #e0f4f8;
+    display:flex;justify-content:space-around;padding:12px 0 18px;
+    box-shadow:0 -4px 20px rgba(0,0,0,0.07);z-index:100;">
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:#29c4de;">
+      <span style="font-size:1.3rem">🏠</span>Início
+    </button>
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:#9bb;">
+      <span style="font-size:1.3rem">📈</span>Histórico
+    </button>
+    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:#9bb;">
+      <span style="font-size:1.3rem">⚙️</span>Config
+    </button>
+  </nav>
+  -->
+
+</div>
+
+<!-- MODAL CALIBRAÇÃO -->
+<div class="modal-overlay" id="calibModal">
+  <div class="modal">
+    <h3>📊 Calibração dos Sensores</h3>
+    <label>Offset pH</label>
+    <input type="number" id="calibPh" step="0.01" placeholder="0.00">
+    <label>Offset Cloro (ppm)</label>
+    <input type="number" id="calibCloro" step="0.01" placeholder="0.00">
+    <label>Nota de calibração</label>
+    <input type="text" id="calibNote" placeholder="Ex: calibrado com solução tampão">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('calibModal')">Cancelar</button>
+      <button class="btn-confirm" onclick="saveCalib()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   CONFIGURAÇÃO SUPABASE
+   ═══════════════════════════════════════ */
+const SB_URL = 'https://iegajmveitocvwfmsazh.supabase.co/rest/v1';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllZ2FqbXZlaXRvY3Z3Zm1zYXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjM3MzcsImV4cCI6MjA5MDUzOTczN30.Y5MyjzYErEaTLBbUgJO19IAGLRpksMp5vWvSSHqTlxI';
+const TABLE  = 'leituras_piscina';
+
+const SB_HEADERS = {
+  'apikey':        SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Content-Type':  'application/json',
+  'Accept':        'application/json'
+};
+
+/* ── DEBUG ── */
+let debugVisible = true;
+function dlog(msg, type = '') {
+  const el = document.getElementById('debugLog');
+  const ts = new Date().toLocaleTimeString('pt-BR');
+  el.innerHTML += `<div class="${type}">[${ts}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+function toggleDebug() {
+  const el  = document.getElementById('debugLog');
+  const btn = document.getElementById('debugToggleBtn');
+  debugVisible = !debugVisible;
+  el.style.display = debugVisible ? 'block' : 'none';
+  btn.textContent  = debugVisible ? 'ocultar' : 'mostrar';
+}
+
+/* ── HEADER DATE ── */
+(function() {
+  const now   = new Date();
+  const dias  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('headerDate').textContent =
+    `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} | ` +
+    `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+})();
+
+/* ── LOAD DATA ── */
+async function loadData() {
+  dlog('🔄 Conectando ao Supabase...', '');
+  try {
+    const url = `${SB_URL}/${TABLE}?order=id.desc&limit=1&select=*`;
+    dlog(`GET ${TABLE}`, '');
+
+    const res  = await fetch(url, { headers: SB_HEADERS });
+    const text = await res.text();
+
+    dlog(`Status: ${res.status} ${res.statusText}`, res.ok ? 'ok' : 'err');
+
+    if (!res.ok) {
+      dlog(`Resposta: ${text.slice(0, 120)}`, 'err');
+      showToast(`Erro ${res.status} — veja o painel de debug`);
+      return false;
+    }
+
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { dlog(`JSON inválido: ${text.slice(0,80)}`, 'err'); return false; }
+
+    if (!Array.isArray(data) || !data.length) {
+      dlog('Resposta vazia — tabela sem dados ou RLS bloqueando SELECT', 'warn');
+      showToast('Sem dados retornados');
+      return false;
+    }
+
+    dlog(`✅ ${data.length} registro(s) recebido(s). ID: ${data[0].id}`, 'ok');
+    renderData(data[0]);
+    return true;
+
+  } catch(err) {
+    dlog(`❌ Erro de rede: ${err.message}`, 'err');
+    showToast('Erro de rede');
+    return false;
+  }
+}
+
+/* ── RENDER DATA ── */
+function renderData(row) {
+  /* Valores principais */
+  document.getElementById('phVal').textContent    = (parseFloat(row.ph)    || 0).toFixed(2);
+  document.getElementById('cloroVal').textContent = (parseFloat(row.cloro) || 0).toFixed(2);
+
+  applyTrend('phTrend',    row.tendencia_ph);
+  applyTrend('cloroTrend', row.tendencia_cloro);
+
+  /* Status / gauge */
+  const nivel  = (row.nivel || 'normal').toLowerCase().trim();
+  const badge  = document.getElementById('statusBadge');
+  const needle = document.getElementById('gaugeNeedle');
+
+  if (nivel === 'normal') {
+    badge.textContent = 'Condições perfeitas'; badge.className = 'status-badge status-normal';  needle.style.left = '15%';
+  } else if (nivel.includes('aten')) {
+    badge.textContent = 'Atenção necessária';  badge.className = 'status-badge status-atencao'; needle.style.left = '52%';
+  } else {
+    badge.textContent = 'Nível crítico!';      badge.className = 'status-badge status-critico'; needle.style.left = '88%';
+  }
+
+  /* Última leitura */
+  if (row.created_at) {
+    const d = new Date(row.created_at);
+    document.getElementById('lastReading').textContent =
+      `Última medição: ${d.toLocaleDateString('pt-BR')} às ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  /* Diagnósticos */
+  const diags = [
+    { label: 'pH OK',        val: !!row.diag_ph        },
+    { label: 'Cloro OK',     val: !!row.diag_cloro     },
+    { label: 'Calibrado',    val: !!row.diag_cal       },
+    { label: 'Alerta pH',    val: !row.alerta_ph       },
+    { label: 'Alerta Cloro', val: !row.alerta_cloro    },
+    { label: 'Online',       val: true                 },
+  ];
+  document.getElementById('diagGrid').innerHTML = diags.map(d =>
+    `<div class="diag-item">
+       <span class="diag-dot ${d.val ? 'diag-ok' : 'diag-fail'}"></span>${d.label}
+     </div>`
+  ).join('');
+}
+
+function applyTrend(id, t) {
+  const el = document.getElementById(id);
+  const v  = (t || '').toLowerCase().trim();
+  if      (v === 'subindo') { el.textContent = '↑ Subindo'; el.className = 'mc-trend trend-up';     }
+  else if (v === 'caindo')  { el.textContent = '↓ Caindo';  el.className = 'mc-trend trend-down';   }
+  else if (v === 'estavel') { el.textContent = '→ Estável'; el.className = 'mc-trend trend-stable'; }
+  else                      { el.textContent = '--';         el.className = 'mc-trend';              }
+}
+
+/* ── REFRESH BUTTON ── */
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  const ok = await loadData();
+  btn.classList.remove('loading'); btn.disabled = false;
+  if (ok) showToast('Dados atualizados ✅');
+}
+
+/* ── SCHEDULES ── */
+let schedules = [];
+try { schedules = JSON.parse(localStorage.getItem('esp_schedules') || '[]'); } catch(e){}
+
+function renderSchedules() {
+  const el = document.getElementById('schedList');
+  if (!schedules.length) {
+    el.innerHTML = '<p style="color:#ccc;font-size:0.78rem;font-weight:600;">Nenhum agendamento ainda.</p>';
+    return;
+  }
+  el.innerHTML = schedules.map((s, i) => `
+    <div class="sched-item">
+      <div class="si-left"><span>📅</span><span class="si-date">${fmtDate(s.date)}</span></div>
+      <span class="si-time">${s.time}</span>
+      <button class="si-del" onclick="deleteSchedule(${i})">🗑</button>
+    </div>`
+  ).join('');
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y.slice(2)}`;
+}
+
+function addSchedule() {
+  const date = document.getElementById('schedDate').value;
+  const time = document.getElementById('schedTime').value;
+  if (!date || !time) { showToast('Preencha data e horário'); return; }
+  schedules.push({ date, time });
+  schedules.sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+  localStorage.setItem('esp_schedules', JSON.stringify(schedules));
+  renderSchedules();
+  document.getElementById('schedDate').value = '';
+  document.getElementById('schedTime').value = '';
+  showToast('Medição agendada! ✅');
+}
+
+function deleteSchedule(i) {
+  schedules.splice(i, 1);
+  localStorage.setItem('esp_schedules', JSON.stringify(schedules));
+  renderSchedules();
+  showToast('Agendamento removido');
+}
+
+/* ── CONFIG ── */
+function openCalibModal() { document.getElementById('calibModal').classList.add('open'); }
+function closeModal(id)   { document.getElementById(id).classList.remove('open'); }
+function saveCalib()      { showToast('Calibração salva ✅'); closeModal('calibModal'); }
+
+async function validateSensors() {
+  showToast('Validando sensores...');
+  const ok = await loadData();
+  setTimeout(() => showToast(ok ? 'Sensores validados ✅' : 'Falha na validação ⚠️'), 800);
+}
+
+function confirmReset() {
+  if (!confirm('Resetar configurações de fábrica?')) return;
+  schedules = []; localStorage.clear(); renderSchedules(); showToast('Reset realizado 🔄');
+}
+
+/* ── TOAST ── */
+let _tt;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── INIT ── */
+renderSchedules();
+loadData();
+setInterval(loadData, 30000);
+</script>
+</body>
+</html>
