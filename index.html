@@ -6,268 +6,393 @@
 <title>EspPiscina</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --cyan-mid: #29c4de; --cyan-dark: #17a8c0;
-    --btn-blue: #3bbfdb; --btn-hover: #29a8c4;
-    --text-dark: #1a3a4a; --text-mid: #2d6070;
-  }
-  body { font-family: 'Inter', sans-serif; background: #f4f8fb; min-height: 100vh; display: flex; justify-content: center; }
-  .phone-wrap { width: 100%; max-width: 420px; min-height: 100vh; background: #f4f8fb; display: flex; flex-direction: column; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --cyan-light:#5de0f5; --cyan-mid:#29c4de; --cyan-dark:#17a8c0;
+  --btn-blue:#3bbfdb; --btn-hover:#29a8c4;
+  --text-dark:#1a3a4a; --text-mid:#2d6070;
+  --bg:#f4f8fb; --white:#fff;
+  --nav-h:66px;
+}
+html,body { height:100%; }
+body { font-family:'Inter',sans-serif; background:var(--bg); display:flex; justify-content:center; }
 
-  /* BLUE HEADER ONLY */
-  .header-bg {
-    background: linear-gradient(135deg, #5de0f5 0%, #29c4de 55%, #17a8c0 100%);
-    padding: 44px 22px 52px;
-  }
-  .header-bg h1 { color: #fff; font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
-  .header-bg p  { color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 500; margin-top: 4px; letter-spacing: 0.1px; }
+/* ══ PHONE SHELL ══ */
+.app { width:100%; max-width:420px; min-height:100vh; background:var(--bg); display:flex; flex-direction:column; position:relative; overflow:hidden; }
 
-  /* WHITE CONTENT */
-  .content { flex: 1; padding: 0 14px 30px; display: flex; flex-direction: column; gap: 14px; margin-top: -30px; }
+/* ══ PAGES ══ */
+.page { display:none; flex-direction:column; flex:1; overflow-y:auto; padding-bottom:calc(var(--nav-h) + 10px); }
+.page.active { display:flex; }
 
-  .card { background: #fff; border-radius: 18px; padding: 16px 18px; box-shadow: 0 2px 14px rgba(0,0,0,0.07); }
+/* ══════════════════════════════
+   HOME PAGE
+══════════════════════════════ */
+.home-header {
+  background: linear-gradient(135deg,#5de0f5 0%,#29c4de 55%,#17a8c0 100%);
+  padding: 44px 22px 52px; flex-shrink:0;
+}
+.home-header h1 { color:#fff; font-size:2rem; font-weight:800; letter-spacing:-0.5px; }
+.home-header p  { color:rgba(255,255,255,0.85); font-size:0.88rem; font-weight:500; margin-top:4px; }
 
-  /* CONDITIONS */
-  .conditions-wrap { position: relative; }
+.home-content { padding:0 14px 10px; display:flex; flex-direction:column; gap:14px; margin-top:-30px; }
 
-  .refresh-btn {
-    position: absolute; top: -18px; right: 4px; z-index: 10;
-    background: none; border: none;
-    width: 34px; height: 34px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    padding: 0; transition: transform 0.2s, opacity 0.2s;
-    opacity: 0.75;
-  }
-  .refresh-btn:hover  { opacity: 1; transform: scale(1.12); }
-  .refresh-btn:active { transform: scale(0.92); }
-  .refresh-btn svg { width: 22px; height: 22px; }
-  .r-spin-wrap { display: none; }
-  .r-icon-wrap { display: flex; }
-  .refresh-btn.loading .r-spin-wrap { display: flex; }
-  .refresh-btn.loading .r-icon-wrap { display: none; }
-  .r-spin-svg { animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.card { background:var(--white); border-radius:18px; padding:16px 18px; box-shadow:0 2px 14px rgba(0,0,0,0.07); }
 
-  .conditions-card { text-align: center; }
-  .status-badge { display: inline-block; padding: 5px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 800; margin-bottom: 12px; }
-  .status-normal  { background: #d4f7e0; color: #1a7a3c; }
-  .status-atencao { background: #fff3cd; color: #856404; }
-  .status-critico { background: #fde8e8; color: #c0392b; }
+/* refresh icon */
+.conditions-wrap { position:relative; }
+.refresh-btn {
+  position:absolute; top:-30px; right:4px; z-index:10;
+  background:none; border:none; width:34px; height:34px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  padding:0; transition:transform 0.2s,opacity 0.2s; opacity:0.92;
+}
+.refresh-btn:hover  { opacity:1; transform:scale(1.12); }
+.refresh-btn:active { transform:scale(0.9); }
+.refresh-btn svg { width:22px; height:22px; }
+.r-spin-wrap { display:none; }
+.r-icon-wrap { display:flex; }
+.refresh-btn.loading .r-spin-wrap { display:flex; }
+.refresh-btn.loading .r-icon-wrap { display:none; }
+.r-spin-svg { animation:spin 0.7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-  .gauge-bar-wrap { position: relative; height: 13px; border-radius: 99px; background: linear-gradient(to right, #27ae60, #f1c40f, #e67e22, #e74c3c); margin: 0 4px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-  .gauge-needle { position: absolute; top: -5px; width: 4px; height: 23px; background: #1a3a4a; border-radius: 2px; transform: translateX(-50%); transition: left 0.8s cubic-bezier(.4,0,.2,1); }
-  .gauge-needle::after { content: '▼'; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #1a3a4a; }
-  .gauge-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: #bbb; margin: 6px 4px 0; }
-  .last-reading { font-size: 0.76rem; color: #aaa; margin-top: 10px; }
+/* status */
+.conditions-card { text-align:center; }
+.status-badge { display:inline-block; padding:5px 16px; border-radius:99px; font-size:0.8rem; font-weight:800; margin-bottom:12px; }
+.status-normal  { background:#d4f7e0; color:#1a7a3c; }
+.status-atencao { background:#fff3cd; color:#856404; }
+.status-critico { background:#fde8e8; color:#c0392b; }
+.gauge-bar-wrap { position:relative; height:13px; border-radius:99px; background:linear-gradient(to right,#27ae60,#f1c40f,#e67e22,#e74c3c); margin:0 4px 8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+.gauge-needle { position:absolute; top:-5px; width:4px; height:23px; background:#1a3a4a; border-radius:2px; transform:translateX(-50%); transition:left 0.8s cubic-bezier(.4,0,.2,1); }
+.gauge-needle::after { content:'▼'; position:absolute; bottom:-15px; left:50%; transform:translateX(-50%); font-size:10px; color:#1a3a4a; }
+.gauge-labels { display:flex; justify-content:space-between; font-size:0.68rem; color:#bbb; margin:6px 4px 0; }
+.last-reading { font-size:0.76rem; color:#aaa; margin-top:10px; }
 
-  .section-label { font-size: 0.92rem; font-weight: 700; color: var(--text-dark); padding-left: 2px; margin-bottom: -4px; letter-spacing: -0.1px; }
+.section-label { font-size:0.92rem; font-weight:700; color:var(--text-dark); padding-left:2px; margin-bottom:-4px; letter-spacing:-0.1px; }
 
-  /* METRICS */
-  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .metric-card { background: var(--btn-blue); border-radius: 16px; padding: 14px 13px; color: #fff; position: relative; box-shadow: 0 3px 10px rgba(41,196,222,0.25); transition: transform 0.15s; }
-  .metric-card:active { transform: scale(0.97); }
-  .mc-icon  { margin-bottom: 6px; display: flex; align-items: center; }
-  .mc-icon svg { width: 20px; height: 20px; }
-  .mc-label { font-size: 0.72rem; font-weight: 600; opacity: 0.85; }
-  .mc-value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; }
-  .mc-ideal { font-size: 0.7rem; opacity: 0.8; font-weight: 500; margin-top: 2px; }
-  .mc-trend { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: rgba(255,255,255,0.22); }
-  .trend-up     { background: rgba(255,80,80,0.32)  !important; }
-  .trend-down   { background: rgba(80,200,120,0.32) !important; }
-  .trend-stable { background: rgba(255,255,255,0.20)!important; }
+/* metric cards */
+.metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.metric-card { background:var(--btn-blue); border-radius:16px; padding:14px 13px; color:#fff; position:relative; box-shadow:0 3px 10px rgba(41,196,222,0.25); }
+.mc-icon { margin-bottom:6px; display:flex; align-items:center; }
+.mc-icon svg { width:20px; height:20px; }
+.mc-label { font-size:0.72rem; font-weight:600; opacity:0.85; }
+.mc-value { font-size:1.6rem; font-weight:800; letter-spacing:-0.5px; line-height:1.15; }
+.mc-ideal { font-size:0.7rem; opacity:0.8; font-weight:500; margin-top:2px; }
+.mc-trend { position:absolute; top:10px; right:10px; font-size:0.65rem; font-weight:700; padding:2px 7px; border-radius:99px; background:rgba(255,255,255,0.22); }
+.trend-up     { background:rgba(255,80,80,0.32)  !important; }
+.trend-down   { background:rgba(80,200,120,0.32) !important; }
+.trend-stable { background:rgba(255,255,255,0.20)!important; }
 
-  /* DIAGNOSTICS */
-  .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .diag-item { display: flex; align-items: center; gap: 8px; background: #f4fafc; border-radius: 10px; padding: 8px 10px; font-size: 0.75rem; font-weight: 700; color: var(--text-dark); }
-  .diag-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .diag-ok { background: #2ecc71; } .diag-fail { background: #e74c3c; }
+/* diag */
+.diag-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.diag-item { display:flex; align-items:center; gap:8px; background:#f4fafc; border-radius:10px; padding:8px 10px; font-size:0.75rem; font-weight:700; color:var(--text-dark); }
+.diag-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.diag-ok   { background:#2ecc71; }
+.diag-fail { background:#e74c3c; }
 
-  /* SCHEDULING */
-  .date-input-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
-  .date-input-row input { flex: 1; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; background: #f4fafc; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
-  .date-input-row input:focus { border-color: var(--cyan-mid); }
-  .btn-add { background: var(--btn-blue); color: #fff; border: none; border-radius: 10px; padding: 9px 13px; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.18s; }
-  .btn-add:hover { background: var(--btn-hover); }
-  .sched-list { display: flex; flex-direction: column; gap: 7px; }
-  .sched-item { display: flex; justify-content: space-between; align-items: center; background: #f4fafc; border-radius: 10px; padding: 8px 11px; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); }
-  .si-left { display: flex; align-items: center; gap: 7px; }
-  .si-date { color: var(--text-mid); } .si-time { color: var(--cyan-dark); font-weight: 800; }
-  .si-del { background: none; border: none; cursor: pointer; font-size: 1rem; color: #ccc; padding: 2px 5px; border-radius: 6px; transition: color 0.15s; }
-  .si-del:hover { color: #e74c3c; }
+/* schedule */
+.date-input-row { display:flex; gap:8px; margin-bottom:10px; align-items:center; }
+.date-input-row input { flex:1; min-width:0; padding:9px 10px; border-radius:10px; border:1.5px solid #d5eef5; font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; background:#f4fafc; color:var(--text-dark); outline:none; transition:border-color 0.2s; }
+.date-input-row input:focus { border-color:var(--cyan-mid); }
+.btn-add { background:var(--btn-blue); color:#fff; border:none; border-radius:10px; padding:9px 13px; font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.18s; }
+.btn-add:hover { background:var(--btn-hover); }
+.sched-list { display:flex; flex-direction:column; gap:7px; }
+.sched-item { display:flex; justify-content:space-between; align-items:center; background:#f4fafc; border-radius:10px; padding:8px 11px; font-size:0.8rem; font-weight:700; color:var(--text-dark); }
+.si-left { display:flex; align-items:center; gap:7px; }
+.si-date { color:var(--text-mid); }
+.si-time { color:var(--cyan-dark); font-weight:800; }
+.si-del { background:none; border:none; cursor:pointer; font-size:1rem; color:#ccc; padding:2px 5px; border-radius:6px; transition:color 0.15s; }
+.si-del:hover { color:#e74c3c; }
 
-  /* CONFIG */
-  .config-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn-config { flex: 1; min-width: 120px; background: var(--btn-blue); color: #fff; border: none; border-radius: 12px; padding: 11px 8px; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.18s; }
-  .btn-config:hover { background: var(--btn-hover); }
-  .reset-row { margin-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #bbb; font-weight: 600; cursor: pointer; transition: color 0.15s; }
-  .reset-row:hover { color: #e74c3c; }
+/* config */
+.config-btns { display:flex; gap:10px; flex-wrap:wrap; }
+.btn-config { flex:1; min-width:120px; background:var(--btn-blue); color:#fff; border:none; border-radius:12px; padding:11px 8px; font-family:'Inter',sans-serif; font-size:0.82rem; font-weight:700; cursor:pointer; transition:background 0.18s; }
+.btn-config:hover { background:var(--btn-hover); }
+.reset-row { margin-top:12px; display:flex; align-items:center; gap:6px; font-size:0.78rem; color:#bbb; font-weight:600; cursor:pointer; transition:color 0.15s; }
+.reset-row:hover { color:#e74c3c; }
 
-  /* DEBUG PANEL */
-  .debug-card { background: #0f2535; border-radius: 14px; padding: 14px 16px; }
-  .debug-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .debug-header h4 { color: #5de0f5; font-size: 0.78rem; font-weight: 800; }
-  .debug-toggle { background: none; border: 1px solid #5de0f5; color: #5de0f5; border-radius: 6px; padding: 2px 8px; font-size: 0.68rem; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; }
-  #debugLog { color: #7ac8d8; font-size: 0.68rem; font-family: monospace; line-height: 1.7; max-height: 150px; overflow-y: auto; }
-  #debugLog .ok   { color: #2ecc71; }
-  #debugLog .err  { color: #e74c3c; }
-  #debugLog .warn { color: #f1c40f; }
+/* debug */
+.debug-card { background:#0f2535; border-radius:14px; padding:14px 16px; }
+.debug-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.debug-header h4 { color:#5de0f5; font-size:0.78rem; font-weight:800; }
+.debug-toggle { background:none; border:1px solid #5de0f5; color:#5de0f5; border-radius:6px; padding:2px 8px; font-size:0.68rem; font-family:'Inter',sans-serif; font-weight:700; cursor:pointer; }
+#debugLog { color:#7ac8d8; font-size:0.68rem; font-family:monospace; line-height:1.7; max-height:140px; overflow-y:auto; }
+#debugLog .ok   { color:#2ecc71; }
+#debugLog .err  { color:#e74c3c; }
+#debugLog .warn { color:#f1c40f; }
 
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 200; justify-content: center; align-items: flex-end; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: #fff; border-radius: 24px 24px 0 0; padding: 22px 20px 32px; width: 100%; max-width: 420px; animation: slideUp 0.25s ease; }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal h3 { font-size: 1rem; font-weight: 800; color: var(--text-dark); margin-bottom: 14px; }
-  .modal label { font-size: 0.78rem; font-weight: 700; color: var(--text-mid); display: block; margin: 10px 0 4px; }
-  .modal input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #d5eef5; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); outline: none; transition: border-color 0.2s; }
-  .modal input:focus { border-color: var(--cyan-mid); }
-  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
-  .modal-btns button { flex: 1; padding: 11px; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
-  .btn-cancel { background: #f0f4f5; color: #999; } .btn-confirm { background: var(--btn-blue); color: #fff; }
+/* ══════════════════════════════
+   HISTÓRICO PAGE
+══════════════════════════════ */
+.hist-header {
+  background: linear-gradient(135deg,#5de0f5 0%,#29c4de 55%,#17a8c0 100%);
+  padding: 44px 22px 52px; flex-shrink:0;
+}
+.hist-header h1 { color:#fff; font-size:2rem; font-weight:800; letter-spacing:-0.5px; }
 
-  /* TOAST */
-  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a3a4a; color: #fff; padding: 10px 22px; border-radius: 99px; font-size: 0.82rem; font-weight: 700; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
-  .toast.show { opacity: 1; }
+.hist-content { padding:0 14px 10px; display:flex; flex-direction:column; gap:14px; margin-top:-30px; }
+
+/* toggle semanal/mensal */
+.period-toggle { background:#e8f5f8; border-radius:99px; padding:4px; display:flex; gap:2px; }
+.period-btn { flex:1; padding:8px 0; border:none; border-radius:99px; font-family:'Inter',sans-serif; font-size:0.82rem; font-weight:700; cursor:pointer; color:#7ab; background:none; transition:all 0.2s; }
+.period-btn.active { background:#fff; color:var(--text-dark); box-shadow:0 1px 6px rgba(0,0,0,0.1); }
+
+/* chart legend */
+.chart-legend { display:flex; gap:14px; justify-content:center; margin-bottom:8px; }
+.legend-item { display:flex; align-items:center; gap:5px; font-size:0.75rem; font-weight:600; color:var(--text-mid); }
+.legend-dot { width:10px; height:10px; border-radius:50%; }
+.legend-cloro { background:#4cd97b; }
+.legend-ph    { background:#4a9eff; }
+
+/* svg chart container */
+.chart-wrap { width:100%; overflow:hidden; border-radius:12px; }
+.chart-svg { width:100%; display:block; }
+
+/* x-axis labels */
+.chart-xlabels { display:flex; justify-content:space-between; padding:4px 6px 0; }
+.chart-xlabels span { font-size:0.62rem; color:#bbb; font-weight:500; }
+
+/* averages */
+.averages-row { display:grid; grid-template-columns:1fr 1fr; }
+.avg-block { padding:14px 18px; text-align:left; }
+.avg-block + .avg-block { border-left:1px solid #f0f4f5; }
+.avg-label { font-size:0.76rem; color:#aaa; font-weight:600; margin-bottom:4px; }
+.avg-value { font-size:2.2rem; font-weight:800; color:var(--text-dark); letter-spacing:-1px; line-height:1; }
+.avg-unit  { font-size:0.75rem; color:#aaa; font-weight:500; }
+
+/* table */
+.table-title { font-size:1rem; font-weight:800; color:var(--text-dark); padding-left:2px; }
+.meas-table { width:100%; border-collapse:collapse; }
+.meas-table th { font-size:0.72rem; font-weight:700; color:#aab; text-align:left; padding:6px 6px 8px; border-bottom:1px solid #f0f5f7; }
+.meas-table td { font-size:0.76rem; font-weight:600; color:var(--text-dark); padding:9px 6px; border-bottom:1px solid #f5f9fb; }
+.meas-table tr:last-child td { border-bottom:none; }
+.status-pill { display:inline-block; padding:3px 10px; border-radius:99px; font-size:0.68rem; font-weight:700; }
+.pill-perfeito  { background:#d4f7e0; color:#1a7a3c; }
+.pill-atencao   { background:#fff3cd; color:#856404; }
+.pill-critico   { background:#fde8e8; color:#c0392b; }
+
+/* loading state */
+.hist-loading { text-align:center; padding:30px; color:#aaa; font-size:0.82rem; font-weight:600; }
+
+/* ══════════════════════════════
+   BOTTOM NAV
+══════════════════════════════ */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:420px; height:var(--nav-h);
+  background:#fff; border-top:1px solid #e8f3f7;
+  display:flex; justify-content:space-around; align-items:center;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.07); z-index:100;
+}
+.nav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; cursor:pointer; padding:6px 20px; }
+.nav-btn svg { width:22px; height:22px; }
+.nav-label { font-family:'Inter',sans-serif; font-size:0.62rem; font-weight:700; color:#9bb; transition:color 0.15s; }
+.nav-btn.active .nav-label { color:var(--cyan-mid); }
+.nav-btn .nav-svg path,
+.nav-btn .nav-svg line,
+.nav-btn .nav-svg polyline,
+.nav-btn .nav-svg rect,
+.nav-btn .nav-svg circle { stroke:#c8dde5; transition:stroke 0.15s; }
+.nav-btn.active .nav-svg path,
+.nav-btn.active .nav-svg line,
+.nav-btn.active .nav-svg polyline,
+.nav-btn.active .nav-svg rect,
+.nav-btn.active .nav-svg circle { stroke:var(--cyan-mid); }
+
+/* ══════════════════════════════
+   MODAL
+══════════════════════════════ */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.32); z-index:200; justify-content:center; align-items:flex-end; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:24px 24px 0 0; padding:22px 20px 32px; width:100%; max-width:420px; animation:slideUp 0.25s ease; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal h3 { font-size:1rem; font-weight:800; color:var(--text-dark); margin-bottom:14px; }
+.modal label { font-size:0.78rem; font-weight:700; color:var(--text-mid); display:block; margin:10px 0 4px; }
+.modal input { width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid #d5eef5; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:600; color:var(--text-dark); outline:none; transition:border-color 0.2s; }
+.modal input:focus { border-color:var(--cyan-mid); }
+.modal-btns { display:flex; gap:10px; margin-top:18px; }
+.modal-btns button { flex:1; padding:11px; border:none; border-radius:12px; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer; }
+.btn-cancel  { background:#f0f4f5; color:#999; }
+.btn-confirm { background:var(--btn-blue); color:#fff; }
+
+/* TOAST */
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#1a3a4a; color:#fff; padding:10px 22px; border-radius:99px; font-size:0.82rem; font-weight:700; z-index:9999; opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.18); }
+.toast.show { opacity:1; }
 </style>
 </head>
 <body>
-<div class="phone-wrap">
+<div class="app">
 
-  <div class="header-bg">
-    <h1>Bem vindo</h1>
-    <p id="headerDate">Carregando...</p>
-  </div>
+  <!-- ══════════════ PAGE: HOME ══════════════ -->
+  <div class="page active" id="pageHome">
+    <div class="home-header">
+      <h1>Bem vindo</h1>
+      <p id="headerDate">Carregando...</p>
+    </div>
+    <div class="home-content">
 
-  <div class="content">
-
-    <!-- CONDITIONS + REFRESH -->
-    <div class="conditions-wrap">
-      <!-- Ícone de refresh enviado pelo usuário — só a setinha, sem texto -->
-      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Atualizar">
-        <span class="r-icon-wrap">
-          <!-- Ícone enviado pelo usuário: arco circular com seta apontando para baixo-direita -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12A9 9 0 1 1 12 3"/>
-            <polyline points="16 3 21 3 21 8"/>
-          </svg>
-        </span>
-        <span class="r-spin-wrap">
-          <svg class="r-spin-svg" viewBox="0 0 24 24" fill="none" stroke="#17a8c0" stroke-width="2.3" stroke-linecap="round">
-            <path d="M21 12A9 9 0 1 1 12 3"/>
-            <polyline points="16 3 21 3 21 8"/>
-          </svg>
-        </span>
-      </button>
-      <div class="card conditions-card">
-        <div id="statusBadge" class="status-badge status-normal">Condições perfeitas</div>
-        <div class="gauge-bar-wrap">
-          <div class="gauge-needle" id="gaugeNeedle" style="left:15%"></div>
+      <!-- CONDITIONS -->
+      <div class="conditions-wrap">
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" title="Atualizar">
+          <span class="r-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12A9 9 0 1 1 12 3"/><polyline points="16 3 21 3 21 8"/>
+            </svg>
+          </span>
+          <span class="r-spin-wrap">
+            <svg class="r-spin-svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round">
+              <path d="M21 12A9 9 0 1 1 12 3"/><polyline points="16 3 21 3 21 8"/>
+            </svg>
+          </span>
+        </button>
+        <div class="card conditions-card">
+          <div id="statusBadge" class="status-badge status-normal">Condições perfeitas</div>
+          <div class="gauge-bar-wrap"><div class="gauge-needle" id="gaugeNeedle" style="left:15%"></div></div>
+          <div class="gauge-labels"><span>Ótimo</span><span>Atenção</span><span>Crítico</span></div>
+          <p class="last-reading" id="lastReading">Buscando última medição...</p>
         </div>
-        <div class="gauge-labels"><span>Ótimo</span><span>Atenção</span><span>Crítico</span></div>
-        <p class="last-reading" id="lastReading">Buscando última medição...</p>
       </div>
-    </div>
 
-    <!-- MEDIÇÕES -->
-    <p class="section-label">Medições</p>
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <!-- Gota minimalista branca -->
-        <div class="mc-icon">
-          <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z"/>
-          </svg>
+      <!-- MEDIÇÕES -->
+      <p class="section-label">Medições</p>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="mc-icon">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z"/></svg>
+          </div>
+          <div class="mc-label">Cloro (Chlorine)</div>
+          <div class="mc-value" id="cloroVal">--</div>
+          <div class="mc-ideal">Ideal: 2.5 ppm</div>
+          <span class="mc-trend" id="cloroTrend">--</span>
         </div>
-        <div class="mc-label">Cloro (Chlorine)</div>
-        <div class="mc-value" id="cloroVal">--</div>
-        <div class="mc-ideal">Ideal: 2.5 ppm</div>
-        <span class="mc-trend" id="cloroTrend">--</span>
-      </div>
-      <div class="metric-card">
-        <!-- Telescópio minimalista branco -->
-        <div class="mc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-            <line x1="2" y1="6" x2="14" y2="3"/>
-            <line x1="2" y1="10" x2="14" y2="7"/>
-            <line x1="2" y1="6" x2="2" y2="10"/>
-            <line x1="14" y1="3" x2="14" y2="7"/>
-            <line x1="8" y1="6.5" x2="12" y2="20"/>
-            <line x1="10" y1="6.2" x2="14" y2="20"/>
-          </svg>
+        <div class="metric-card">
+          <div class="mc-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="2" y1="6" x2="14" y2="3"/><line x1="2" y1="10" x2="14" y2="7"/>
+              <line x1="2" y1="6" x2="2" y2="10"/><line x1="14" y1="3" x2="14" y2="7"/>
+              <line x1="8" y1="6.5" x2="12" y2="20"/><line x1="10" y1="6.2" x2="14" y2="20"/>
+            </svg>
+          </div>
+          <div class="mc-label">pH</div>
+          <div class="mc-value" id="phVal">--</div>
+          <div class="mc-ideal">Ideal: 7.2</div>
+          <span class="mc-trend" id="phTrend">--</span>
         </div>
-        <div class="mc-label">pH</div>
-        <div class="mc-value" id="phVal">--</div>
-        <div class="mc-ideal">Ideal: 7.2</div>
-        <span class="mc-trend" id="phTrend">--</span>
       </div>
+
+      <!-- DIAGNÓSTICOS -->
+      <p class="section-label">Diagnósticos</p>
+      <div class="card">
+        <div class="diag-grid" id="diagGrid">
+          <div class="diag-item"><span class="diag-dot" style="background:#ddd"></span>Aguardando...</div>
+        </div>
+      </div>
+
+      <!-- AGENDAMENTO -->
+      <p class="section-label">Agendar próxima medição</p>
+      <div class="card">
+        <div class="date-input-row">
+          <input type="date" id="schedDate">
+          <input type="time" id="schedTime">
+          <button class="btn-add" onclick="addSchedule()">+ Adicionar</button>
+        </div>
+        <div class="sched-list" id="schedList">
+          <p style="color:#ccc;font-size:0.78rem;font-weight:600;">Nenhum agendamento ainda.</p>
+        </div>
+      </div>
+
+      <!-- CONFIG -->
+      <p class="section-label">Configurações e manutenção</p>
+      <div class="card">
+        <div class="config-btns">
+          <button class="btn-config" onclick="openCalibModal()">📊 Ver calibração</button>
+          <button class="btn-config" onclick="validateSensors()">✅ Validar Sensores</button>
+        </div>
+        <div class="reset-row" onclick="confirmReset()">🔄 Reset de fábrica</div>
+      </div>
+
+      <!-- DEBUG -->
+      <div class="debug-card">
+        <div class="debug-header">
+          <h4>🛰 Conexão Supabase</h4>
+          <button class="debug-toggle" id="debugToggleBtn" onclick="toggleDebug()">ocultar</button>
+        </div>
+        <div id="debugLog">Iniciando...</div>
+      </div>
+
+    </div><!-- /home-content -->
+  </div><!-- /pageHome -->
+
+
+  <!-- ══════════════ PAGE: HISTÓRICO ══════════════ -->
+  <div class="page" id="pageHist">
+    <div class="hist-header">
+      <h1>Histórico</h1>
     </div>
+    <div class="hist-content">
 
-    <!-- DIAGNÓSTICOS -->
-    <p class="section-label">Diagnósticos</p>
-    <div class="card">
-      <div class="diag-grid" id="diagGrid">
-        <div class="diag-item"><span class="diag-dot" style="background:#ddd"></span>Aguardando...</div>
+      <!-- PERIOD TOGGLE -->
+      <div class="card" style="padding:6px;">
+        <div class="period-toggle">
+          <button class="period-btn active" id="btnSemanal" onclick="setPeriod('semanal')">Semanal</button>
+          <button class="period-btn"         id="btnMensal"  onclick="setPeriod('mensal')">Mensal</button>
+        </div>
       </div>
-    </div>
 
-    <!-- AGENDAMENTO -->
-    <p class="section-label">Agendar próxima medição</p>
-    <div class="card">
-      <div class="date-input-row">
-        <input type="date" id="schedDate">
-        <input type="time" id="schedTime">
-        <button class="btn-add" onclick="addSchedule()">+ Adicionar</button>
+      <!-- CHART -->
+      <div class="card" style="padding:16px 14px 12px;">
+        <div class="chart-legend">
+          <div class="legend-item"><span class="legend-dot legend-cloro"></span>Cloro</div>
+          <div class="legend-item"><span class="legend-dot legend-ph"></span>pH</div>
+        </div>
+        <div class="chart-wrap" id="chartWrap">
+          <div class="hist-loading">Carregando gráfico...</div>
+        </div>
+        <div class="chart-xlabels" id="chartLabels"></div>
       </div>
-      <div class="sched-list" id="schedList">
-        <p style="color:#ccc;font-size:0.78rem;font-weight:600;">Nenhum agendamento ainda.</p>
+
+      <!-- AVERAGES -->
+      <div class="card" style="padding:0;">
+        <div class="averages-row">
+          <div class="avg-block">
+            <div class="avg-label">Média cloro</div>
+            <div><span class="avg-value" id="avgCloro">--</span> <span class="avg-unit">ppm</span></div>
+          </div>
+          <div class="avg-block">
+            <div class="avg-label">Média pH</div>
+            <div><span class="avg-value" id="avgPh">--</span></div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- CONFIG -->
-    <p class="section-label">Configurações e manutenção</p>
-    <div class="card">
-      <div class="config-btns">
-        <button class="btn-config" onclick="openCalibModal()">📊 Ver calibração</button>
-        <button class="btn-config" onclick="validateSensors()">✅ Validar Sensores</button>
+      <!-- TABLE -->
+      <p class="table-title">Últimas medições</p>
+      <div class="card" style="padding:10px 12px;" id="tableWrap">
+        <div class="hist-loading">Carregando...</div>
       </div>
-      <div class="reset-row" onclick="confirmReset()">🔄 Reset de fábrica</div>
-    </div>
 
-    <!-- DEBUG PANEL -->
-    <div class="debug-card">
-      <div class="debug-header">
-        <h4>🛰 Conexão Supabase</h4>
-        <button class="debug-toggle" id="debugToggleBtn" onclick="toggleDebug()">ocultar</button>
-      </div>
-      <div id="debugLog">Iniciando...</div>
-    </div>
+    </div><!-- /hist-content -->
+  </div><!-- /pageHist -->
 
-  </div>
 
-  <!--
-  ══════════════════════════════════════
-   FOOTER DE NAVEGAÇÃO
-   Descomente quando quiser ativar as abas
-  ══════════════════════════════════════
-
-  <nav style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-    width:100%;max-width:420px;background:#fff;border-top:1px solid #e0f4f8;
-    display:flex;justify-content:space-around;padding:12px 0 18px;
-    box-shadow:0 -4px 20px rgba(0,0,0,0.07);z-index:100;">
-    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:#29c4de;">
-      <span style="font-size:1.3rem">🏠</span>Início
+  <!-- ══════════════ BOTTOM NAV ══════════════ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="navHome" onclick="navigate('home')">
+      <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+        <polyline points="9 21 9 13 15 13 15 21"/>
+      </svg>
+      <span class="nav-label">Início</span>
     </button>
-    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:#9bb;">
-      <span style="font-size:1.3rem">📈</span>Histórico
-    </button>
-    <button style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:700;color:#9bb;">
-      <span style="font-size:1.3rem">⚙️</span>Config
+    <button class="nav-btn" id="navHist" onclick="navigate('hist')">
+      <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      <span class="nav-label">Histórico</span>
     </button>
   </nav>
-  -->
 
-</div>
+</div><!-- /app -->
 
 <!-- MODAL CALIBRAÇÃO -->
 <div class="modal-overlay" id="calibModal">
@@ -280,7 +405,7 @@
     <label>Nota de calibração</label>
     <input type="text" id="calibNote" placeholder="Ex: calibrado com solução tampão">
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('calibModal')">Cancelar</button>
+      <button class="btn-cancel"  onclick="closeModal('calibModal')">Cancelar</button>
       <button class="btn-confirm" onclick="saveCalib()">Salvar</button>
     </div>
   </div>
@@ -289,21 +414,56 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════════════════════════════════
-   CONFIGURAÇÃO SUPABASE
-   ═══════════════════════════════════════ */
+/* ════════════════════════════════════
+   SUPABASE CONFIG
+════════════════════════════════════ */
 const SB_URL = 'https://iegajmveitocvwfmsazh.supabase.co/rest/v1';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllZ2FqbXZlaXRvY3Z3Zm1zYXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjM3MzcsImV4cCI6MjA5MDUzOTczN30.Y5MyjzYErEaTLBbUgJO19IAGLRpksMp5vWvSSHqTlxI';
 const TABLE  = 'leituras_piscina';
+const SB_H   = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Accept': 'application/json' };
 
-const SB_HEADERS = {
-  'apikey':        SB_KEY,
-  'Authorization': `Bearer ${SB_KEY}`,
-  'Content-Type':  'application/json',
-  'Accept':        'application/json'
-};
+/* ════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════ */
+let currentPage = 'home';
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (page === 'home') {
+    document.getElementById('pageHome').classList.add('active');
+    document.getElementById('navHome').classList.add('active');
+  } else {
+    document.getElementById('pageHist').classList.add('active');
+    document.getElementById('navHist').classList.add('active');
+    loadHistorico();
+  }
+  currentPage = page;
+  // scroll to top
+  document.querySelector('.page.active').scrollTop = 0;
+}
 
-/* ── DEBUG ── */
+/* ════════════════════════════════════
+   HEADER DATE — atualiza a cada minuto
+════════════════════════════════════ */
+function updateClock() {
+  const now   = new Date();
+  const dias  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('headerDate').textContent =
+    `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} | ` +
+    `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+updateClock();
+// atualiza exatamente na virada do minuto
+(function schedClock() {
+  const ms = 60000 - (Date.now() % 60000);
+  setTimeout(() => { updateClock(); setInterval(updateClock, 60000); }, ms);
+})();
+
+/* ════════════════════════════════════
+   DEBUG
+════════════════════════════════════ */
 let debugVisible = true;
 function dlog(msg, type = '') {
   const el = document.getElementById('debugLog');
@@ -319,111 +479,69 @@ function toggleDebug() {
   btn.textContent  = debugVisible ? 'ocultar' : 'mostrar';
 }
 
-/* ── HEADER DATE ── */
-(function() {
-  const now   = new Date();
-  const dias  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('headerDate').textContent =
-    `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} | ` +
-    `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-})();
-
-/* ── LOAD DATA ── */
+/* ════════════════════════════════════
+   HOME — LOAD LATEST
+════════════════════════════════════ */
 async function loadData() {
-  dlog('🔄 Conectando ao Supabase...', '');
+  dlog('🔄 Conectando...', '');
   try {
-    const url = `${SB_URL}/${TABLE}?order=id.desc&limit=1&select=*`;
-    dlog(`GET ${TABLE}`, '');
-
-    const res  = await fetch(url, { headers: SB_HEADERS });
+    const res  = await fetch(`${SB_URL}/${TABLE}?order=id.desc&limit=1&select=*`, { headers: SB_H });
     const text = await res.text();
-
-    dlog(`Status: ${res.status} ${res.statusText}`, res.ok ? 'ok' : 'err');
-
-    if (!res.ok) {
-      dlog(`Resposta: ${text.slice(0, 120)}`, 'err');
-      showToast(`Erro ${res.status} — veja o painel de debug`);
-      return false;
-    }
-
-    let data;
-    try { data = JSON.parse(text); }
-    catch(e) { dlog(`JSON inválido: ${text.slice(0,80)}`, 'err'); return false; }
-
-    if (!Array.isArray(data) || !data.length) {
-      dlog('Resposta vazia — tabela sem dados ou RLS bloqueando SELECT', 'warn');
-      showToast('Sem dados retornados');
-      return false;
-    }
-
-    dlog(`✅ ${data.length} registro(s) recebido(s). ID: ${data[0].id}`, 'ok');
-    renderData(data[0]);
+    dlog(`Status: ${res.status}`, res.ok ? 'ok' : 'err');
+    if (!res.ok) { dlog(text.slice(0,100), 'err'); showToast(`Erro ${res.status}`); return false; }
+    let data; try { data = JSON.parse(text); } catch { dlog('JSON inválido','err'); return false; }
+    if (!Array.isArray(data) || !data.length) { dlog('Tabela vazia ou RLS bloqueando','warn'); return false; }
+    dlog(`✅ ID ${data[0].id}`, 'ok');
+    renderHome(data[0]);
     return true;
-
-  } catch(err) {
-    dlog(`❌ Erro de rede: ${err.message}`, 'err');
-    showToast('Erro de rede');
-    return false;
-  }
+  } catch(e) { dlog(`❌ ${e.message}`, 'err'); showToast('Erro de rede'); return false; }
 }
 
-/* ── RENDER DATA ── */
-function renderData(row) {
-  /* Valores principais */
+function renderHome(row) {
   document.getElementById('phVal').textContent    = (parseFloat(row.ph)    || 0).toFixed(2);
   document.getElementById('cloroVal').textContent = (parseFloat(row.cloro) || 0).toFixed(2);
-
   applyTrend('phTrend',    row.tendencia_ph);
   applyTrend('cloroTrend', row.tendencia_cloro);
 
-  /* Status / gauge */
   const nivel  = (row.nivel || 'normal').toLowerCase().trim();
   const badge  = document.getElementById('statusBadge');
   const needle = document.getElementById('gaugeNeedle');
-
   if (nivel === 'normal') {
-    badge.textContent = 'Condições perfeitas'; badge.className = 'status-badge status-normal';  needle.style.left = '15%';
+    badge.textContent='Condições perfeitas'; badge.className='status-badge status-normal';  needle.style.left='15%';
   } else if (nivel.includes('aten')) {
-    badge.textContent = 'Atenção necessária';  badge.className = 'status-badge status-atencao'; needle.style.left = '52%';
+    badge.textContent='Atenção necessária';  badge.className='status-badge status-atencao'; needle.style.left='52%';
   } else {
-    badge.textContent = 'Nível crítico!';      badge.className = 'status-badge status-critico'; needle.style.left = '88%';
+    badge.textContent='Nível crítico!';      badge.className='status-badge status-critico'; needle.style.left='88%';
   }
 
-  /* Última leitura */
   if (row.created_at) {
     const d = new Date(row.created_at);
     document.getElementById('lastReading').textContent =
       `Última medição: ${d.toLocaleDateString('pt-BR')} às ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
   }
 
-  /* Diagnósticos */
   const diags = [
-    { label: 'pH OK',        val: !!row.diag_ph        },
-    { label: 'Cloro OK',     val: !!row.diag_cloro     },
-    { label: 'Calibrado',    val: !!row.diag_cal       },
-    { label: 'Alerta pH',    val: !row.alerta_ph       },
-    { label: 'Alerta Cloro', val: !row.alerta_cloro    },
-    { label: 'Online',       val: true                 },
+    { label:'pH OK',        val:!!row.diag_ph     },
+    { label:'Cloro OK',     val:!!row.diag_cloro  },
+    { label:'Calibrado',    val:!!row.diag_cal    },
+    { label:'Alerta pH',    val:!row.alerta_ph    },
+    { label:'Alerta Cloro', val:!row.alerta_cloro },
+    { label:'Online',       val:true              },
   ];
   document.getElementById('diagGrid').innerHTML = diags.map(d =>
-    `<div class="diag-item">
-       <span class="diag-dot ${d.val ? 'diag-ok' : 'diag-fail'}"></span>${d.label}
-     </div>`
+    `<div class="diag-item"><span class="diag-dot ${d.val?'diag-ok':'diag-fail'}"></span>${d.label}</div>`
   ).join('');
 }
 
 function applyTrend(id, t) {
   const el = document.getElementById(id);
-  const v  = (t || '').toLowerCase().trim();
-  if      (v === 'subindo') { el.textContent = '↑ Subindo'; el.className = 'mc-trend trend-up';     }
-  else if (v === 'caindo')  { el.textContent = '↓ Caindo';  el.className = 'mc-trend trend-down';   }
-  else if (v === 'estavel') { el.textContent = '→ Estável'; el.className = 'mc-trend trend-stable'; }
-  else                      { el.textContent = '--';         el.className = 'mc-trend';              }
+  const v  = (t||'').toLowerCase().trim();
+  if      (v==='subindo') { el.textContent='↑ Subindo'; el.className='mc-trend trend-up';     }
+  else if (v==='caindo')  { el.textContent='↓ Caindo';  el.className='mc-trend trend-down';   }
+  else if (v==='estavel') { el.textContent='→ Estável'; el.className='mc-trend trend-stable'; }
+  else                    { el.textContent='--';         el.className='mc-trend';              }
 }
 
-/* ── REFRESH BUTTON ── */
 async function refreshData() {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('loading'); btn.disabled = true;
@@ -432,76 +550,250 @@ async function refreshData() {
   if (ok) showToast('Dados atualizados ✅');
 }
 
-/* ── SCHEDULES ── */
+/* ════════════════════════════════════
+   HISTÓRICO — LOAD + CHART
+════════════════════════════════════ */
+let histPeriod = 'semanal';
+
+function setPeriod(p) {
+  histPeriod = p;
+  document.getElementById('btnSemanal').classList.toggle('active', p === 'semanal');
+  document.getElementById('btnMensal').classList.toggle('active',  p === 'mensal');
+  loadHistorico();
+}
+
+async function loadHistorico() {
+  const days = histPeriod === 'semanal' ? 7 : 30;
+
+  document.getElementById('chartWrap').innerHTML = '<div class="hist-loading">Carregando gráfico...</div>';
+  document.getElementById('tableWrap').innerHTML = '<div class="hist-loading">Carregando...</div>';
+  document.getElementById('avgCloro').textContent = '--';
+  document.getElementById('avgPh').textContent    = '--';
+
+  try {
+    // Supabase REST filter: use the column as a query param with operator prefix
+    const since = new Date(Date.now() - days * 86400000).toISOString();
+    const params = new URLSearchParams({
+      order:  'created_at.asc',
+      limit:  '500',
+      select: 'id,created_at,ph,cloro,nivel',
+    });
+    // Supabase horizontal filter: ?created_at=gte.VALUE
+    const url = `${SB_URL}/${TABLE}?${params.toString()}&created_at=gte.${encodeURIComponent(since)}`;
+
+    const res  = await fetch(url, { headers: SB_H });
+    const text = await res.text();
+
+    if (!res.ok) {
+      document.getElementById('chartWrap').innerHTML = `<div class="hist-loading" style="color:#e74c3c">Erro ${res.status}: ${text.slice(0,80)}</div>`;
+      return;
+    }
+
+    let data; try { data = JSON.parse(text); } catch { return; }
+    if (!Array.isArray(data)) data = [];
+
+    renderHistorico(data);
+  } catch(e) {
+    document.getElementById('chartWrap').innerHTML = `<div class="hist-loading" style="color:#e74c3c">Erro de rede</div>`;
+  }
+}
+
+function renderHistorico(data) {
+  if (!data.length) {
+    document.getElementById('chartWrap').innerHTML = '<div class="hist-loading">Sem dados neste período</div>';
+    document.getElementById('tableWrap').innerHTML = '<div class="hist-loading">Sem dados</div>';
+    return;
+  }
+
+  // ── Averages ──
+  const avgC = data.reduce((s,r) => s + (parseFloat(r.cloro)||0), 0) / data.length;
+  const avgP = data.reduce((s,r) => s + (parseFloat(r.ph)||0),    0) / data.length;
+  document.getElementById('avgCloro').textContent = avgC.toFixed(1);
+  document.getElementById('avgPh').textContent    = avgP.toFixed(1);
+
+  // ── Chart ──
+  drawChart(data);
+
+  // ── Table (last 20, newest first) ──
+  const rows = [...data].reverse().slice(0, 20);
+  const statusPill = (nivel) => {
+    const n = (nivel||'normal').toLowerCase();
+    if (n.includes('aten')) return `<span class="status-pill pill-atencao">Atenção</span>`;
+    if (n.includes('cri'))  return `<span class="status-pill pill-critico">Crítico</span>`;
+    return `<span class="status-pill pill-perfeito">Perfeito</span>`;
+  };
+  document.getElementById('tableWrap').innerHTML = `
+    <table class="meas-table">
+      <thead>
+        <tr><th>Data</th><th>Horário</th><th>Chlorine</th><th>pH</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => {
+          const d    = new Date(r.created_at);
+          const date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`;
+          const time = `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+          return `<tr>
+            <td>${date}</td>
+            <td>${time}</td>
+            <td>${(parseFloat(r.cloro)||0).toFixed(1)}</td>
+            <td>${(parseFloat(r.ph)||0).toFixed(1)}</td>
+            <td>${statusPill(r.nivel)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+/* ── SVG Area Chart ── */
+function drawChart(data) {
+  const W = 360, H = 160;
+  const PAD = { top:12, right:10, bottom:10, left:10 };
+  const iW = W - PAD.left - PAD.right;
+  const iH = H - PAD.top  - PAD.bottom;
+
+  // sample up to 30 points evenly
+  const sampled = sampleData(data, 28);
+  const n = sampled.length;
+  if (n < 2) {
+    document.getElementById('chartWrap').innerHTML = '<div class="hist-loading">Poucos dados para exibir</div>';
+    return;
+  }
+
+  const cloroVals = sampled.map(r => parseFloat(r.cloro) || 0);
+  const phVals    = sampled.map(r => parseFloat(r.ph)    || 0);
+
+  // normalize both series independently to [0,1]
+  const scaleVals = (vals) => {
+    const mn = Math.min(...vals), mx = Math.max(...vals);
+    const range = mx - mn || 1;
+    return vals.map(v => (v - mn) / range);
+  };
+
+  const cNorm = scaleVals(cloroVals);
+  const pNorm = scaleVals(phVals);
+
+  const xPos = (i)    => PAD.left + (i / (n-1)) * iW;
+  const yPos = (norm) => PAD.top  + iH - norm * iH;
+
+  // smooth polyline using simple averaging for visual smoothness
+  const pts = (norms) => norms.map((v,i) => `${xPos(i).toFixed(1)},${yPos(v).toFixed(1)}`).join(' ');
+
+  // closed area path
+  const areaPath = (norms) => {
+    const start = `M${xPos(0).toFixed(1)},${yPos(norms[0]).toFixed(1)}`;
+    const line  = norms.slice(1).map((_,i) => `L${xPos(i+1).toFixed(1)},${yPos(norms[i+1]).toFixed(1)}`).join('');
+    const close = `L${xPos(n-1).toFixed(1)},${(PAD.top+iH).toFixed(1)} L${xPos(0).toFixed(1)},${(PAD.top+iH).toFixed(1)} Z`;
+    return start + line + close;
+  };
+
+  // Colors matching the image: green for cloro, blue for pH
+  const COLOR_C = '#4cd97b'; // green
+  const COLOR_P = '#4a9eff'; // blue
+
+  const svg = `
+  <svg class="chart-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="gradC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="${COLOR_C}" stop-opacity="0.40"/>
+        <stop offset="100%" stop-color="${COLOR_C}" stop-opacity="0.04"/>
+      </linearGradient>
+      <linearGradient id="gradP" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="${COLOR_P}" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="${COLOR_P}" stop-opacity="0.04"/>
+      </linearGradient>
+    </defs>
+    <!-- area fills — pH behind cloro -->
+    <path d="${areaPath(pNorm)}" fill="url(#gradP)"/>
+    <path d="${areaPath(cNorm)}" fill="url(#gradC)"/>
+    <!-- lines -->
+    <polyline points="${pts(pNorm)}" fill="none" stroke="${COLOR_P}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="${pts(cNorm)}" fill="none" stroke="${COLOR_C}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- end dots -->
+    <circle cx="${xPos(n-1).toFixed(1)}" cy="${yPos(cNorm[n-1]).toFixed(1)}" r="3.5" fill="${COLOR_C}"/>
+    <circle cx="${xPos(n-1).toFixed(1)}" cy="${yPos(pNorm[n-1]).toFixed(1)}" r="3.5" fill="${COLOR_P}"/>
+  </svg>`;
+
+  document.getElementById('chartWrap').innerHTML = svg;
+
+  // x-axis date labels
+  const fmt = (r) => {
+    const d = new Date(r.created_at);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  };
+  const mid = sampled[Math.floor(n/2)];
+  document.getElementById('chartLabels').innerHTML =
+    `<span>${fmt(sampled[0])}</span><span>${fmt(mid)}</span><span>${fmt(sampled[n-1])}</span>`;
+}
+
+function sampleData(arr, maxPts) {
+  if (arr.length <= maxPts) return arr;
+  const result = [];
+  const step = (arr.length - 1) / (maxPts - 1);
+  for (let i = 0; i < maxPts; i++) result.push(arr[Math.round(i * step)]);
+  return result;
+}
+
+/* ════════════════════════════════════
+   SCHEDULES
+════════════════════════════════════ */
 let schedules = [];
-try { schedules = JSON.parse(localStorage.getItem('esp_schedules') || '[]'); } catch(e){}
+try { schedules = JSON.parse(localStorage.getItem('esp_schedules') || '[]'); } catch(e) {}
 
 function renderSchedules() {
   const el = document.getElementById('schedList');
-  if (!schedules.length) {
-    el.innerHTML = '<p style="color:#ccc;font-size:0.78rem;font-weight:600;">Nenhum agendamento ainda.</p>';
-    return;
-  }
-  el.innerHTML = schedules.map((s, i) => `
+  if (!schedules.length) { el.innerHTML = '<p style="color:#ccc;font-size:0.78rem;font-weight:600;">Nenhum agendamento ainda.</p>'; return; }
+  el.innerHTML = schedules.map((s,i) => `
     <div class="sched-item">
       <div class="si-left"><span>📅</span><span class="si-date">${fmtDate(s.date)}</span></div>
       <span class="si-time">${s.time}</span>
       <button class="si-del" onclick="deleteSchedule(${i})">🗑</button>
-    </div>`
-  ).join('');
+    </div>`).join('');
 }
-
-function fmtDate(d) {
-  if (!d) return '';
-  const [y,m,day] = d.split('-');
-  return `${day}/${m}/${y.slice(2)}`;
-}
-
+function fmtDate(d) { if(!d)return''; const[y,m,day]=d.split('-'); return`${day}/${m}/${y.slice(2)}`; }
 function addSchedule() {
   const date = document.getElementById('schedDate').value;
   const time = document.getElementById('schedTime').value;
-  if (!date || !time) { showToast('Preencha data e horário'); return; }
-  schedules.push({ date, time });
-  schedules.sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+  if (!date||!time) { showToast('Preencha data e horário'); return; }
+  schedules.push({date,time});
+  schedules.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   localStorage.setItem('esp_schedules', JSON.stringify(schedules));
   renderSchedules();
-  document.getElementById('schedDate').value = '';
-  document.getElementById('schedTime').value = '';
+  document.getElementById('schedDate').value='';
+  document.getElementById('schedTime').value='';
   showToast('Medição agendada! ✅');
 }
-
 function deleteSchedule(i) {
-  schedules.splice(i, 1);
+  schedules.splice(i,1);
   localStorage.setItem('esp_schedules', JSON.stringify(schedules));
   renderSchedules();
   showToast('Agendamento removido');
 }
 
-/* ── CONFIG ── */
+/* ════════════════════════════════════
+   CONFIG
+════════════════════════════════════ */
 function openCalibModal() { document.getElementById('calibModal').classList.add('open'); }
 function closeModal(id)   { document.getElementById(id).classList.remove('open'); }
 function saveCalib()      { showToast('Calibração salva ✅'); closeModal('calibModal'); }
-
-async function validateSensors() {
-  showToast('Validando sensores...');
-  const ok = await loadData();
-  setTimeout(() => showToast(ok ? 'Sensores validados ✅' : 'Falha na validação ⚠️'), 800);
-}
-
+async function validateSensors() { showToast('Validando...'); const ok=await loadData(); setTimeout(()=>showToast(ok?'Sensores OK ✅':'Falha ⚠️'),800); }
 function confirmReset() {
-  if (!confirm('Resetar configurações de fábrica?')) return;
-  schedules = []; localStorage.clear(); renderSchedules(); showToast('Reset realizado 🔄');
+  if (!confirm('Resetar configurações?')) return;
+  schedules=[]; localStorage.clear(); histCache={semanal:null,mensal:null}; renderSchedules(); showToast('Reset feito 🔄');
 }
 
-/* ── TOAST ── */
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
 let _tt;
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 2800);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-/* ── INIT ── */
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
 renderSchedules();
 loadData();
 setInterval(loadData, 30000);
