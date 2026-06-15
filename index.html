@@ -126,6 +126,22 @@ body {
 .gauge-labels { display:flex; justify-content:space-between; font-size:0.65rem; color:var(--text-3); margin:4px 4px 0; font-weight:600; }
 .last-reading { font-size:0.73rem; color:var(--text-3); margin-top:10px; font-weight:500; }
 
+/* ── ALERT BANNER ── */
+.alert-banner {
+  display:none; align-items:center; gap:10px;
+  margin-top:12px; padding:11px 14px;
+  border-radius:var(--r-sm); font-size:0.8rem; font-weight:700;
+  animation: alertPulse 2s ease-in-out infinite;
+}
+.alert-banner.show { display:flex; }
+.alert-banner.warn { background:var(--warn-bg); color:var(--warn-txt); border:1.5px solid #f1c40f; }
+.alert-banner.crit { background:var(--crit-bg); color:var(--crit-txt); border:1.5px solid #e74c3c; }
+.alert-banner svg { flex-shrink:0; }
+@keyframes alertPulse {
+  0%,100% { opacity:1; }
+  50%      { opacity:0.7; }
+}
+
 .metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .metric-card {
   background:linear-gradient(135deg,var(--cyan-btn) 0%,var(--cyan-dark) 100%);
@@ -394,6 +410,13 @@ body.font-xl { font-size:1.22rem; }
         <div class="gauge-bar-wrap"><div class="gauge-needle" id="gaugeNeedle" style="left:15%"></div></div>
         <div class="gauge-labels"><span>Ótimo</span><span>Atenção</span><span>Crítico</span></div>
         <p class="last-reading" id="lastReading">Buscando última medição...</p>
+        <div class="alert-banner" id="alertBanner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span id="alertBannerMsg">Verifique os parâmetros da piscina!</span>
+        </div>
       </div>
     </div>
 
@@ -795,11 +818,50 @@ function renderHome(row){
   document.getElementById('cloroVal').textContent=(parseFloat(row.cloro)||0).toFixed(2);
   applyTrend('phTrend',row.tendencia_ph);
   applyTrend('cloroTrend',row.tendencia_cloro);
-  const nivel=(row.nivel||'normal').toLowerCase().trim();
-  const badge=document.getElementById('statusBadge'),needle=document.getElementById('gaugeNeedle');
-  if(nivel==='normal'){badge.innerHTML='<span class="badge-dot"></span>Condições perfeitas';badge.className='status-badge status-normal';needle.style.left='15%';}
-  else if(nivel.includes('aten')){badge.innerHTML='<span class="badge-dot"></span>Atenção necessária';badge.className='status-badge status-atencao';needle.style.left='52%';}
-  else{badge.innerHTML='<span class="badge-dot"></span>Nível crítico';badge.className='status-badge status-critico';needle.style.left='88%';}
+  const ph    = parseFloat(row.ph)    || 0;
+  const cloro = parseFloat(row.cloro) || 0;
+
+  // Calcular score de criticidade baseado nos valores reais (0=ótimo, 1=crítico)
+  // pH ideal: 7.2–7.6 | atenção: 7.0–7.2 ou 7.6–7.8 | crítico: <7.0 ou >7.8
+  // Cloro ideal: 1.0–3.0 ppm | atenção: 0.5–1.0 ou 3.0–5.0 | crítico: <0.5 ou >5.0
+  function phScore(v){
+    if(v>=7.2&&v<=7.6) return 0;
+    if(v>=7.0&&v<=7.8) return 0.5;
+    return 1;
+  }
+  function cloroScore(v){
+    if(v>=1.0&&v<=3.0) return 0;
+    if(v>=0.5&&v<=5.0) return 0.5;
+    return 1;
+  }
+  const score = Math.max(phScore(ph), cloroScore(cloro));
+
+  // Posição da agulha: mapeia score 0→1 para left 5%→95%
+  const needlePct = Math.round(5 + score * 90);
+
+  const badge  = document.getElementById('statusBadge');
+  const needle = document.getElementById('gaugeNeedle');
+  const banner = document.getElementById('alertBanner');
+  const bannerMsg = document.getElementById('alertBannerMsg');
+  banner.className = 'alert-banner';
+  needle.style.left = needlePct + '%';
+
+  if(score === 0){
+    badge.innerHTML  = '<span class="badge-dot"></span>Condições perfeitas';
+    badge.className  = 'status-badge status-normal';
+  } else if(score === 0.5){
+    badge.innerHTML  = '<span class="badge-dot"></span>Atenção necessária';
+    badge.className  = 'status-badge status-atencao';
+    banner.classList.add('show','warn');
+    bannerMsg.textContent = '⚠️ Atenção: verifique os parâmetros da piscina!';
+    showToast('⚠️ Atenção — Parâmetros fora do ideal!');
+  } else {
+    badge.innerHTML  = '<span class="badge-dot"></span>Nível crítico';
+    badge.className  = 'status-badge status-critico';
+    banner.classList.add('show','crit');
+    bannerMsg.textContent = '🚨 Crítico: ação imediata necessária na piscina!';
+    showToast('🚨 CRÍTICO — Ação imediata necessária!');
+  }
   if(row.created_at){const d=new Date(row.created_at);document.getElementById('lastReading').textContent=`Última leitura: ${d.toLocaleDateString('pt-BR')} às ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;}
   const diags=[{label:'pH OK',val:!!row.diag_ph},{label:'Cloro OK',val:!!row.diag_cloro},{label:'Calibrado',val:!!row.diag_cal},{label:'Alerta pH',val:!row.alerta_ph},{label:'Alerta Cloro',val:!row.alerta_cloro},{label:'Online',val:true}];
   document.getElementById('diagGrid').innerHTML=diags.map(d=>`<div class="diag-item"><span class="diag-dot ${d.val?'diag-ok':'diag-fail'}"></span>${d.label}</div>`).join('');
